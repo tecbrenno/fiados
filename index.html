@@ -1,10 +1,10 @@
-<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Fiado - Mercadinho</title>
     <style>
+        /* Mantenha todo o seu CSS aqui */
         * {
             margin: 0;
             padding: 0;
@@ -16,6 +16,104 @@
             background-color: #f5f5f5;
             color: #333;
             overflow-x: hidden;
+        }
+
+        /* Estilos do Login */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-box h1 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .login-box p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .login-form .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .login-form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .login-form input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .login-form input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-error {
+            background: #fee;
+            color: #c33;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .btn-login {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 44px 10px rgba(0,0,0,0.3);
+        }
+
+        .first-access-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f8ff;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Container principal (oculto até fazer login) */
+        .main-app {
+            display: none;
         }
 
         .container {
@@ -31,6 +129,31 @@
             text-align: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             margin: -20px -20px 20px -20px;
+            position: relative;
+        }
+
+        .header-user-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            text-align: right;
+            font-size: 14px;
+        }
+
+        .btn-logout {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 5px;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.3);
         }
 
         .tabs {
@@ -408,7 +531,30 @@
             margin-left: 10px;
         }
 
-        .selected-items {
+        .item-row .autocomplete-container {
+            position: relative;
+            flex: 1;
+        }
+
+        .item-row .autocomplete-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .item-row .autocomplete-suggestions.active {
+            display: block;
+        }
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
@@ -494,50 +640,71 @@
     </style>
 </head>
 <body>
-<div id="loginContainer" style="position: fixed; inset: 0; background: #f5f5f5; display: flex; justify-content: center; align-items: center; z-index: 9999;">
-    <div style="background: white; padding: 40px; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.1); max-width: 300px; width: 100%; text-align: center;">
-        <h2 style="margin-bottom: 20px;">Acesso Restrito</h2>
-        <input id="username" type="text" placeholder="Usuário" style="width: 100%; padding: 10px; margin-bottom: 10px;">
-        <div style="position: relative; width: 100%;">
-            <input id="password" type="password" placeholder="Senha" style="width: 100%; padding: 10px; margin-bottom: 10px;">
-            <span onclick="togglePasswordVisibility()" style="position: absolute; right: 10px; top: 12px; cursor: pointer;">👁️</span>
-        </div>
-        <button onclick="login()" style="padding: 10px 20px;">Entrar</button>
-        <p id="loginError" style="color: red; margin-top: 10px; display: none;">Usuário ou senha incorretos</p>
-    </div>
-</div>
-
-<!-- Botão de logout -->
-<div id="logoutButtonContainer" style="position: fixed; top: 15px; right: 15px; z-index: 9998; display: none;">
-    <button onclick="logout()" style="padding: 10px 20px; background: #f44336; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
-        Sair
-    </button>
-</div>
-
-
-    <div class="container">
-        <div class="header">
+    <div id="loginScreen" class="login-container">
+        <div class="login-box">
             <h1>Sistema de Fiado</h1>
-            <p>Controle simples e rápido para seu mercadinho</p>
+            <p>Faça login para continuar</p>
+            
+            <div id="loginError" class="login-error"></div>
+            
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="username">Usuário (Email)</label>
+                    <input type="email" id="username" required autocomplete="username">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" required autocomplete="current-password">
+                </div>
+                
+                <button type="submit" class="btn-login">Entrar</button>
+            </form>
+            
+            <div class="first-access-info">
+                <strong>Atenção:</strong> Com a mudança para o Firebase, os dados agora são armazenados em nuvem.
+                Você precisará criar um usuário via console do Firebase ou cadastrar o primeiro admin via código (após o deploy).
+                Recomendamos fortemente configurar as regras de segurança do Firestore.
+                <br>
+                **Sugestão de Admin Inicial para Teste (crie no Firebase Auth):**
+                Email: `admin@example.com`
+                Senha: `admin123` (ou uma senha forte de sua escolha)
+                *Lembre-se de adicionar este usuário com `role: 'admin'` na coleção `users` do Firestore.*
+            </div>
         </div>
+    </div>
+
+    <div id="mainApp" class="main-app">
+        <div class="container">
+            <div class="header">
+                <div class="header-user-info">
+                    <span id="currentUser"></span><br>
+                    <button class="btn-logout" onclick="logout()">Sair</button>
+                </div>
+                <h1>Sistema de Fiado</h1>
+                <p>Controle simples e rápido para seu mercadinho</p>
+            </div>
 
         <div class="tabs">
             <button class="tab active" onclick="showSection('vendas')">Nova Venda</button>
             <button class="tab" onclick="showSection('clientes')">Clientes</button>
             <button class="tab" onclick="showSection('consultar')">Consultar Débitos</button>
             <button class="tab" onclick="showSection('relatorios')">Relatórios</button>
+            <button id="tabConfig" class="tab" style="display: none;" onclick="showSection('configuracoes')">Configurações</button>
+
         </div>
 
         <div class="content">
-            <!-- Seção de Vendas -->
             <div id="vendas" class="section active">
                 <h2>Nova Venda Fiado</h2>
                 
                 <div class="form-group">
                     <label>Cliente:</label>
-                    <select id="clienteVenda" onchange="verificarClienteAutorizado()">
-                        <option value="">Selecione um cliente...</option>
-                    </select>
+                    <div class="autocomplete-container">
+                        <input type="text" id="buscarClienteVenda" placeholder="Digite para buscar um cliente..." autocomplete="off">
+                        <div id="autocompleteClientesSuggestions" class="autocomplete-suggestions"></div>
+                    </div>
+                    <input type="hidden" id="clienteVenda" onchange="verificarClienteAutorizado()">
                 </div>
 
                 <div id="clienteNaoAutorizado" style="display: none;" class="card" style="background: #fff3cd; border-color: #ffeeba;">
@@ -599,7 +766,6 @@
                 </div>
             </div>
 
-            <!-- Seção de Clientes -->
             <div id="clientes" class="section">
                 <h2>Gerenciar Clientes</h2>
                 
@@ -634,7 +800,6 @@
                 <div class="client-list" id="listaClientes"></div>
             </div>
 
-            <!-- Seção de Consulta de Débitos -->
             <div id="consultar" class="section">
                 <h2>Consultar e Gerenciar Débitos</h2>
                 
@@ -660,7 +825,6 @@
                 <div id="listaDebitos"></div>
             </div>
 
-            <!-- Seção de Relatórios -->
             <div id="relatorios" class="section">
                 <h2>Relatórios</h2>
                 
@@ -684,1080 +848,74 @@
                     <div class="transaction-list" id="historicoTransacoes"></div>
                 </div>
             </div>
+
+            <div id="configuracoes" class="section">
+                <h2>Configurações do Sistema</h2>
+                
+                <div class="card">
+                    <h3>Gerenciar Usuários</h3>
+                    <button onclick="mostrarFormUsuario()" style="margin-bottom: 20px;">+ Novo Usuário</button>
+                    
+                    <div id="formUsuario" style="display: none;" class="card">
+                        <h4>Cadastrar Usuário</h4>
+                        <div class="form-group">
+                            <label>Nome Completo:</label>
+                            <input type="text" id="nomeUsuario" placeholder="Nome do usuário">
+                        </div>
+                        <div class="form-group">
+                            <label>Usuário (Email para Login):</label>
+                            <input type="email" id="loginUsuario" placeholder="email@exemplo.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Senha:</label>
+                            <input type="password" id="senhaUsuario" placeholder="Senha de acesso">
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo de Usuário:</label>
+                            <select id="tipoUsuario">
+                                <option value="user">Usuário Normal</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn-secondary" onclick="cancelarFormUsuario()">Cancelar</button>
+                            <button onclick="salvarUsuario()">Salvar Usuário</button>
+                        </div>
+                    </div>
+                    
+                    <div id="listaUsuarios"></div>
+                </div>
+                
+                <div class="card" style="margin-top: 20px;">
+                    <h3>Alterar Minha Senha</h3>
+                    <div class="form-group">
+                        <label>Senha Atual:</label>
+                        <input type="password" id="senhaAtual">
+                    </div>
+                    <div class="form-group">
+                        <label>Nova Senha:</label>
+                        <input type="password" id="novaSenha">
+                    </div>
+                    <div class="form-group">
+                        <label>Confirmar Nova Senha:</label>
+                        <input type="password" id="confirmarSenha">
+                    </div>
+                    <button onclick="alterarSenha()">Alterar Senha</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Modal de Detalhes do Cliente -->
-    <div id="modalCliente" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="fecharModal()">&times;</span>
-            <h2 id="modalClienteNome"></h2>
-            <div id="modalClienteConteudo"></div>
+            <div id="modalCliente" class="modal">
+                <div class="modal-content">
+                    <span class="close-modal" onclick="fecharModal()">&times;</span>
+                    <h2 id="modalClienteNome"></h2>
+                    <div id="modalClienteConteudo"></div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script>
-        // Estado da aplicação
-        let clientes = JSON.parse(localStorage.getItem('clientes') || '[]');
-        let vendas = JSON.parse(localStorage.getItem('vendas') || '[]');
-        let pagamentos = JSON.parse(localStorage.getItem('pagamentos') || '[]');
-        
-        // Estado da calculadora
-        let calcDisplay = '0';
-        let calcOperator = null;
-        let calcWaitingForOperand = false;
-        let calcValue = null;
-        
-        // Estado da venda atual
-        let itensVenda = [];
-        let selectedProducts = [];
-        
-        // Lista de produtos para autocomplete
-        let produtos = JSON.parse(localStorage.getItem('produtos') || JSON.stringify([
-            // Alimentos básicos
-            { nome: 'Arroz', categoria: 'Alimentos' },
-            { nome: 'Arroz integral', categoria: 'Alimentos' },
-            { nome: 'Feijão preto', categoria: 'Alimentos' },
-            { nome: 'Feijão carioca', categoria: 'Alimentos' },
-            { nome: 'Feijão branco', categoria: 'Alimentos' },
-            { nome: 'Açúcar cristal', categoria: 'Alimentos' },
-            { nome: 'Açúcar refinado', categoria: 'Alimentos' },
-            { nome: 'Sal', categoria: 'Alimentos' },
-            { nome: 'Farinha de trigo', categoria: 'Alimentos' },
-            { nome: 'Farinha de mandioca', categoria: 'Alimentos' },
-            { nome: 'Fubá', categoria: 'Alimentos' },
-            { nome: 'Macarrão', categoria: 'Alimentos' },
-            { nome: 'Macarrão instantâneo', categoria: 'Alimentos' },
-            { nome: 'Óleo de soja', categoria: 'Alimentos' },
-            { nome: 'Azeite', categoria: 'Alimentos' },
-            { nome: 'Vinagre', categoria: 'Alimentos' },
-            { nome: 'Café', categoria: 'Alimentos' },
-            { nome: 'Leite em pó', categoria: 'Alimentos' },
-            { nome: 'Achocolatado', categoria: 'Alimentos' },
-            { nome: 'Biscoito cream cracker', categoria: 'Alimentos' },
-            { nome: 'Biscoito recheado', categoria: 'Alimentos' },
-            { nome: 'Pão de forma', categoria: 'Alimentos' },
-            { nome: 'Pão francês', categoria: 'Alimentos' },
-            
-            // Enlatados e conservas
-            { nome: 'Sardinha', categoria: 'Enlatados' },
-            { nome: 'Atum', categoria: 'Enlatados' },
-            { nome: 'Milho verde', categoria: 'Enlatados' },
-            { nome: 'Ervilha', categoria: 'Enlatados' },
-            { nome: 'Molho de tomate', categoria: 'Enlatados' },
-            { nome: 'Extrato de tomate', categoria: 'Enlatados' },
-            { nome: 'Leite condensado', categoria: 'Enlatados' },
-            { nome: 'Creme de leite', categoria: 'Enlatados' },
-            
-            // Bebidas
-            { nome: 'Coca-Cola', categoria: 'Bebidas' },
-            { nome: 'Guaraná', categoria: 'Bebidas' },
-            { nome: 'Fanta', categoria: 'Bebidas' },
-            { nome: 'Sprite', categoria: 'Bebidas' },
-            { nome: 'Água mineral', categoria: 'Bebidas' },
-            { nome: 'Suco de laranja', categoria: 'Bebidas' },
-            { nome: 'Suco de uva', categoria: 'Bebidas' },
-            { nome: 'Cerveja Skol', categoria: 'Bebidas' },
-            { nome: 'Cerveja Brahma', categoria: 'Bebidas' },
-            { nome: 'Cerveja Antarctica', categoria: 'Bebidas' },
-            { nome: 'Cerveja Heineken', categoria: 'Bebidas' },
-            { nome: 'Vinho', categoria: 'Bebidas' },
-            { nome: 'Cachaça', categoria: 'Bebidas' },
-            { nome: 'Vodka', categoria: 'Bebidas' },
-            { nome: 'Whisky', categoria: 'Bebidas' },
-            
-            // Frios e laticínios
-            { nome: 'Queijo mussarela', categoria: 'Frios' },
-            { nome: 'Queijo prato', categoria: 'Frios' },
-            { nome: 'Presunto', categoria: 'Frios' },
-            { nome: 'Mortadela', categoria: 'Frios' },
-            { nome: 'Salame', categoria: 'Frios' },
-            { nome: 'Iogurte', categoria: 'Frios' },
-            { nome: 'Requeijão', categoria: 'Frios' },
-            { nome: 'Manteiga', categoria: 'Frios' },
-            { nome: 'Margarina', categoria: 'Frios' },
-            { nome: 'Leite', categoria: 'Frios' },
-            
-            // Carnes
-            { nome: 'Carne moída', categoria: 'Carnes' },
-            { nome: 'Frango', categoria: 'Carnes' },
-            { nome: 'Linguiça', categoria: 'Carnes' },
-            { nome: 'Salsicha', categoria: 'Carnes' },
-            { nome: 'Bacon', categoria: 'Carnes' },
-            { nome: 'Peixe', categoria: 'Carnes' },
-            { nome: 'Carne de porco', categoria: 'Carnes' },
-            { nome: 'Ovos', categoria: 'Carnes' },
-            
-            // Higiene pessoal
-            { nome: 'Sabonete', categoria: 'Higiene' },
-            { nome: 'Shampoo', categoria: 'Higiene' },
-            { nome: 'Condicionador', categoria: 'Higiene' },
-            { nome: 'Pasta de dente', categoria: 'Higiene' },
-            { nome: 'Escova de dente', categoria: 'Higiene' },
-            { nome: 'Papel higiênico', categoria: 'Higiene' },
-            { nome: 'Desodorante', categoria: 'Higiene' },
-            { nome: 'Absorvente', categoria: 'Higiene' },
-            { nome: 'Barbeador', categoria: 'Higiene' },
-            { nome: 'Creme de barbear', categoria: 'Higiene' },
-            
-            // Limpeza
-            { nome: 'Detergente', categoria: 'Limpeza' },
-            { nome: 'Sabão em pó', categoria: 'Limpeza' },
-            { nome: 'Sabão em barra', categoria: 'Limpeza' },
-            { nome: 'Amaciante', categoria: 'Limpeza' },
-            { nome: 'Água sanitária', categoria: 'Limpeza' },
-            { nome: 'Desinfetante', categoria: 'Limpeza' },
-            { nome: 'Esponja', categoria: 'Limpeza' },
-            { nome: 'Palha de aço', categoria: 'Limpeza' },
-            { nome: 'Saco de lixo', categoria: 'Limpeza' },
-            { nome: 'Álcool', categoria: 'Limpeza' },
-            
-            // Outros
-            { nome: 'Cigarro', categoria: 'Outros' },
-            { nome: 'Isqueiro', categoria: 'Outros' },
-            { nome: 'Fósforo', categoria: 'Outros' },
-            { nome: 'Pilha', categoria: 'Outros' },
-            { nome: 'Vela', categoria: 'Outros' },
-            { nome: 'Lampada', categoria: 'Outros' },
-            { nome: 'Gás de cozinha', categoria: 'Outros' },
-            { nome: 'Carvão', categoria: 'Outros' },
-            
-            // Verduras e legumes
-            { nome: 'Tomate', categoria: 'Hortifruti' },
-            { nome: 'Cebola', categoria: 'Hortifruti' },
-            { nome: 'Alho', categoria: 'Hortifruti' },
-            { nome: 'Batata', categoria: 'Hortifruti' },
-            { nome: 'Cenoura', categoria: 'Hortifruti' },
-            { nome: 'Alface', categoria: 'Hortifruti' },
-            { nome: 'Couve', categoria: 'Hortifruti' },
-            { nome: 'Cheiro verde', categoria: 'Hortifruti' },
-            
-            // Frutas
-            { nome: 'Banana', categoria: 'Frutas' },
-            { nome: 'Maçã', categoria: 'Frutas' },
-            { nome: 'Laranja', categoria: 'Frutas' },
-            { nome: 'Limão', categoria: 'Frutas' },
-            { nome: 'Mamão', categoria: 'Frutas' },
-            { nome: 'Melancia', categoria: 'Frutas' },
-            { nome: 'Abacaxi', categoria: 'Frutas' },
-            
-            // Guloseimas
-            { nome: 'Chocolate', categoria: 'Guloseimas' },
-            { nome: 'Bombom', categoria: 'Guloseimas' },
-            { nome: 'Bala', categoria: 'Guloseimas' },
-            { nome: 'Chiclete', categoria: 'Guloseimas' },
-            { nome: 'Pipoca', categoria: 'Guloseimas' },
-            { nome: 'Salgadinho', categoria: 'Guloseimas' },
-            { nome: 'Sorvete', categoria: 'Guloseimas' },
-            { nome: 'Picolé', categoria: 'Guloseimas' }
-        ]));
-
-        // Inicialização
-        window.onload = function() {
-            carregarDados();
-            atualizarListaClientes();
-            atualizarSelectClientes();
-            atualizarDebitos();
-            atualizarRelatorios();
-            setupAutocomplete();
-        };
-
-        // Navegação entre seções
-        function showSection(sectionId) {
-            // Esconder todas as seções
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            
-            // Mostrar seção selecionada
-            document.getElementById(sectionId).classList.add('active');
-            event.target.classList.add('active');
-            
-            // Atualizar dados ao mudar de aba
-            if (sectionId === 'consultar') {
-                atualizarDebitos();
-            } else if (sectionId === 'relatorios') {
-                atualizarRelatorios();
-            }
-        }
-
-        // Funções de Persistência
-        function salvarDados() {
-            localStorage.setItem('clientes', JSON.stringify(clientes));
-            localStorage.setItem('vendas', JSON.stringify(vendas));
-            localStorage.setItem('pagamentos', JSON.stringify(pagamentos));
-            localStorage.setItem('produtos', JSON.stringify(produtos));
-        }
-
-        function carregarDados() {
-            clientes = JSON.parse(localStorage.getItem('clientes') || '[]');
-            vendas = JSON.parse(localStorage.getItem('vendas') || '[]');
-            pagamentos = JSON.parse(localStorage.getItem('pagamentos') || '[]');
-            
-            // Carregar produtos salvos ou usar os padrões
-            const produtosSalvos = localStorage.getItem('produtos');
-            if (produtosSalvos) {
-                produtos = JSON.parse(produtosSalvos);
-            }
-        }
-
-        // Funções da Calculadora
-        function updateDisplay() {
-            document.getElementById('calcDisplay').textContent = calcDisplay;
-        }
-
-        function addNumber(num) {
-            if (calcWaitingForOperand) {
-                calcDisplay = num;
-                calcWaitingForOperand = false;
-            } else {
-                calcDisplay = calcDisplay === '0' ? num : calcDisplay + num;
-            }
-            updateDisplay();
-        }
-
-        function addDecimal() {
-            if (calcWaitingForOperand) {
-                calcDisplay = '0.';
-                calcWaitingForOperand = false;
-            } else if (!calcDisplay.includes('.')) {
-                calcDisplay += '.';
-            }
-            updateDisplay();
-        }
-
-        function setOperator(nextOperator) {
-            const inputValue = parseFloat(calcDisplay);
-
-            if (calcValue === null) {
-                calcValue = inputValue;
-            } else if (calcOperator) {
-                const currentValue = calcValue || 0;
-                const newValue = calculate();
-                calcDisplay = `${parseFloat(newValue.toFixed(2))}`;
-                calcValue = newValue;
-            }
-
-            calcWaitingForOperand = true;
-            calcOperator = nextOperator;
-            updateDisplay();
-        }
-
-        function calculate() {
-            const inputValue = parseFloat(calcDisplay);
-
-            if (calcValue === null || calcOperator === null) {
-                return inputValue;
-            }
-
-            let result;
-            if (calcOperator === '+') {
-                result = calcValue + inputValue;
-            } else if (calcOperator === '-') {
-                result = calcValue - inputValue;
-            } else if (calcOperator === '*') {
-                result = calcValue * inputValue;
-            } else if (calcOperator === '/') {
-                result = calcValue / inputValue;
-            }
-
-            calcDisplay = `${parseFloat(result.toFixed(2))}`;
-            calcValue = null;
-            calcOperator = null;
-            calcWaitingForOperand = true;
-            updateDisplay();
-            
-            return result;
-        }
-
-        function clearCalc() {
-            calcDisplay = '0';
-            calcOperator = null;
-            calcWaitingForOperand = false;
-            calcValue = null;
-            updateDisplay();
-        }
-
-        // Funções de Venda
-        function verificarClienteAutorizado() {
-            const clienteId = document.getElementById('clienteVenda').value;
-            const cliente = clientes.find(c => c.id === clienteId);
-            
-            if (!cliente) {
-                document.getElementById('areaVenda').style.display = 'none';
-                document.getElementById('clienteNaoAutorizado').style.display = 'none';
-                return;
-            }
-            
-            if (cliente.autorizado) {
-                document.getElementById('areaVenda').style.display = 'block';
-                document.getElementById('clienteNaoAutorizado').style.display = 'none';
-            } else {
-                document.getElementById('areaVenda').style.display = 'none';
-                document.getElementById('clienteNaoAutorizado').style.display = 'block';
-            }
-        }
-
-        function adicionarItem() {
-            const valor = parseFloat(calcDisplay);
-            if (valor > 0) {
-                itensVenda.push({
-                    valor: valor,
-                    descricao: ''
-                });
-                atualizarListaItens();
-                clearCalc();
-            }
-        }
-
-        function atualizarListaItens() {
-            const container = document.getElementById('itensCompra');
-            container.innerHTML = '';
-            
-            let total = 0;
-            
-            itensVenda.forEach((item, index) => {
-                total += item.valor;
-                
-                const itemDiv = document.createElement('div');
-                itemDiv.className = 'item-row';
-                itemDiv.innerHTML = `
-                    <input type="text" placeholder="Descrição do item..." 
-                           value="${item.descricao}" 
-                           onchange="itensVenda[${index}].descricao = this.value">
-                    <span style="min-width: 100px; text-align: right;">R$ ${item.valor.toFixed(2).replace('.', ',')}</span>
-                    <button class="btn-danger" onclick="removerItem(${index})">×</button>
-                `;
-                container.appendChild(itemDiv);
-            });
-            
-            document.getElementById('totalCompra').textContent = total.toFixed(2).replace('.', ',');
-        }
-
-        function removerItem(index) {
-            itensVenda.splice(index, 1);
-            atualizarListaItens();
-        }
-
-        function cancelarVenda() {
-            if (confirm('Deseja cancelar esta venda?')) {
-                itensVenda = [];
-                selectedProducts = [];
-                document.getElementById('clienteVenda').value = '';
-                document.getElementById('obsCompra').value = '';
-                document.getElementById('selectedItems').innerHTML = '';
-                document.getElementById('areaVenda').style.display = 'none';
-                clearCalc();
-                atualizarListaItens();
-            }
-        }
-
-        function finalizarVenda() {
-            const clienteId = document.getElementById('clienteVenda').value;
-            const obsInput = document.getElementById('obsCompra').value;
-            
-            // Combinar produtos selecionados com o texto livre
-            const produtosSelecionados = selectedProducts.join(', ');
-            const obs = produtosSelecionados ? 
-                (obsInput ? `${produtosSelecionados}, ${obsInput}` : produtosSelecionados) : 
-                obsInput;
-            
-            if (!clienteId) {
-                alert('Selecione um cliente!');
-                return;
-            }
-            
-            if (itensVenda.length === 0) {
-                alert('Adicione pelo menos um item!');
-                return;
-            }
-            
-            const cliente = clientes.find(c => c.id === clienteId);
-            const total = itensVenda.reduce((sum, item) => sum + item.valor, 0);
-            
-            const venda = {
-                id: Date.now().toString(),
-                clienteId: clienteId,
-                clienteNome: cliente.nome,
-                data: new Date().toISOString(),
-                itens: itensVenda,
-                total: total,
-                observacoes: obs,
-                status: 'pendente',
-                dataPagamento: calcularDataPagamento(cliente.diaPagamento)
-            };
-            
-            vendas.push(venda);
-            salvarDados();
-            
-            // Mostrar mensagem de sucesso
-            const successMsg = document.createElement('div');
-            successMsg.className = 'success-message';
-            successMsg.textContent = 'Venda registrada com sucesso!';
-            document.querySelector('.content').insertBefore(successMsg, document.querySelector('.content').firstChild);
-            
-            setTimeout(() => successMsg.remove(), 3000);
-            
-            // Limpar formulário
-            cancelarVenda();
-            atualizarDebitos();
-            atualizarRelatorios();
-        }
-
-        function calcularDataPagamento(diaPagamento) {
-            const hoje = new Date();
-            let dataPagamento = new Date(hoje.getFullYear(), hoje.getMonth(), diaPagamento);
-            
-            // Se o dia já passou este mês, ir para o próximo mês
-            if (dataPagamento <= hoje) {
-                dataPagamento.setMonth(dataPagamento.getMonth() + 1);
-            }
-            
-            return dataPagamento.toISOString();
-        }
-
-        // Funções de Cliente
-        function mostrarFormCliente() {
-            document.getElementById('formCliente').style.display = 'block';
-        }
-
-        function cancelarFormCliente() {
-            document.getElementById('formCliente').style.display = 'none';
-            document.getElementById('nomeCliente').value = '';
-            document.getElementById('telefoneCliente').value = '';
-            document.getElementById('diaPagamento').value = '';
-            document.getElementById('clienteAutorizado').checked = true;
-        }
-
-        function salvarCliente() {
-            const nome = document.getElementById('nomeCliente').value.trim();
-            const telefone = document.getElementById('telefoneCliente').value.trim();
-            const diaPagamento = parseInt(document.getElementById('diaPagamento').value);
-            const autorizado = document.getElementById('clienteAutorizado').checked;
-            
-            if (!nome || !telefone || !diaPagamento) {
-                alert('Preencha todos os campos!');
-                return;
-            }
-            
-            if (diaPagamento < 1 || diaPagamento > 31) {
-                alert('Dia de pagamento deve ser entre 1 e 31!');
-                return;
-            }
-            
-            const cliente = {
-                id: Date.now().toString(),
-                nome: nome,
-                telefone: telefone,
-                diaPagamento: diaPagamento,
-                autorizado: autorizado,
-                dataCadastro: new Date().toISOString()
-            };
-            
-            clientes.push(cliente);
-            salvarDados();
-            
-            cancelarFormCliente();
-            atualizarListaClientes();
-            atualizarSelectClientes();
-            
-            // Mostrar mensagem de sucesso
-            const successMsg = document.createElement('div');
-            successMsg.className = 'success-message';
-            successMsg.textContent = 'Cliente cadastrado com sucesso!';
-            document.querySelector('#clientes').insertBefore(successMsg, document.querySelector('#clientes').firstChild.nextSibling);
-            
-            setTimeout(() => successMsg.remove(), 3000);
-        }
-
-        function atualizarListaClientes() {
-            const container = document.getElementById('listaClientes');
-            container.innerHTML = '';
-            
-            if (clientes.length === 0) {
-                container.innerHTML = '<div class="empty-state"><p>Nenhum cliente cadastrado ainda.</p></div>';
-                return;
-            }
-            
-            clientes.forEach(cliente => {
-                const debito = calcularDebitoCliente(cliente.id);
-                const clienteDiv = document.createElement('div');
-                clienteDiv.className = 'client-item';
-                clienteDiv.innerHTML = `
-                    <div class="client-info">
-                        <h3>${cliente.nome}</h3>
-                        <p>📱 ${cliente.telefone} | 📅 Dia ${cliente.diaPagamento}</p>
-                        <p>${cliente.autorizado ? '✅ Autorizado' : '❌ Não autorizado'}</p>
-                    </div>
-                    <div style="text-align: right;">
-                        <p class="debt-amount">R$ ${debito.toFixed(2).replace('.', ',')}</p>
-                        <button onclick="verDetalhesCliente('${cliente.id}')" style="margin-top: 10px;">Ver Detalhes</button>
-                    </div>
-                `;
-                container.appendChild(clienteDiv);
-            });
-        }
-
-        function atualizarSelectClientes() {
-            const select = document.getElementById('clienteVenda');
-            select.innerHTML = '<option value="">Selecione um cliente...</option>';
-            
-            clientes.forEach(cliente => {
-                const option = document.createElement('option');
-                option.value = cliente.id;
-                option.textContent = cliente.nome;
-                select.appendChild(option);
-            });
-        }
-
-        function calcularDebitoCliente(clienteId) {
-            return vendas
-                .filter(v => v.clienteId === clienteId && v.status === 'pendente')
-                .reduce((total, venda) => total + venda.total, 0);
-        }
-
-        // Funções de Débitos
-        function atualizarDebitos() {
-            const container = document.getElementById('listaDebitos');
-            container.innerHTML = '';
-            
-            let totalGeral = 0;
-            let totalDevedores = 0;
-            let totalVencidoHoje = 0;
-            const hoje = new Date();
-            hoje.setHours(0, 0, 0, 0);
-            
-            const clientesComDebito = clientes.filter(cliente => {
-                const debito = calcularDebitoCliente(cliente.id);
-                return debito > 0;
-            });
-            
-            if (clientesComDebito.length === 0) {
-                container.innerHTML = '<div class="empty-state"><p>Nenhum débito pendente!</p></div>';
-            } else {
-                clientesComDebito.forEach(cliente => {
-                    const vendasCliente = vendas.filter(v => v.clienteId === cliente.id && v.status === 'pendente');
-                    const debito = vendasCliente.reduce((total, venda) => total + venda.total, 0);
-                    
-                    totalGeral += debito;
-                    totalDevedores++;
-                    
-                    // Verificar se tem venda vencida hoje
-                    vendasCliente.forEach(venda => {
-                        const dataVenc = new Date(venda.dataPagamento);
-                        dataVenc.setHours(0, 0, 0, 0);
-                        if (dataVenc <= hoje) {
-                            totalVencidoHoje += venda.total;
-                        }
-                    });
-                    
-                    const proximaData = vendasCliente.length > 0 ? 
-                        new Date(Math.min(...vendasCliente.map(v => new Date(v.dataPagamento)))) : null;
-                    
-                    const clienteDiv = document.createElement('div');
-                    clienteDiv.className = 'card';
-                    clienteDiv.innerHTML = `
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <h3>${cliente.nome}</h3>
-                                <p>📱 ${cliente.telefone}</p>
-                                <p>📅 Próximo vencimento: ${proximaData ? formatarData(proximaData) : 'N/A'}</p>
-                                <p>${vendasCliente.length} venda(s) pendente(s)</p>
-                            </div>
-                            <div style="text-align: right;">
-                                <p class="debt-amount">R$ ${debito.toFixed(2).replace('.', ',')}</p>
-                                <div style="margin-top: 10px; display: flex; gap: 10px;">
-                                    <button onclick="verDetalhesDebito('${cliente.id}')">Detalhes</button>
-                                    <button class="btn-success" onclick="registrarPagamento('${cliente.id}', ${debito})">Pagar</button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    container.appendChild(clienteDiv);
-                });
-            }
-            
-            // Atualizar estatísticas
-            document.getElementById('totalAberto').textContent = totalGeral.toFixed(2).replace('.', ',');
-            document.getElementById('totalDevedores').textContent = totalDevedores;
-            document.getElementById('vencidosHoje').textContent = totalVencidoHoje.toFixed(2).replace('.', ',');
-        }
-
-        function filtrarDebitos() {
-            const busca = document.getElementById('buscarDebito').value.toLowerCase();
-            const cards = document.querySelectorAll('#listaDebitos .card');
-            
-            cards.forEach(card => {
-                const nome = card.querySelector('h3').textContent.toLowerCase();
-                card.style.display = nome.includes(busca) ? 'block' : 'none';
-            });
-        }
-
-        function verDetalhesCliente(clienteId) {
-            const cliente = clientes.find(c => c.id === clienteId);
-            const vendasCliente = vendas.filter(v => v.clienteId === clienteId);
-            
-            document.getElementById('modalClienteNome').textContent = cliente.nome;
-            
-            let html = `
-                <p><strong>Telefone:</strong> ${cliente.telefone}</p>
-                <p><strong>Dia de Pagamento:</strong> ${cliente.diaPagamento}</p>
-                <p><strong>Status:</strong> ${cliente.autorizado ? 'Autorizado' : 'Não autorizado'}</p>
-                <hr>
-                <h3>Histórico de Compras</h3>
-            `;
-            
-            if (vendasCliente.length === 0) {
-                html += '<p>Nenhuma compra registrada.</p>';
-            } else {
-                html += '<div class="transaction-list">';
-                vendasCliente.forEach(venda => {
-                    html += `
-                        <div class="transaction-item">
-                            <p><strong>${formatarData(new Date(venda.data))}</strong></p>
-                            <p>Total: R$ ${venda.total.toFixed(2).replace('.', ',')}</p>
-                            <p>Status: ${venda.status === 'pendente' ? '⏳ Pendente' : '✅ Pago'}</p>
-                            ${venda.observacoes ? `<p>Obs: ${venda.observacoes}</p>` : ''}
-                        </div>
-                    `;
-                });
-                html += '</div>';
-            }
-            
-            document.getElementById('modalClienteConteudo').innerHTML = html;
-            document.getElementById('modalCliente').style.display = 'block';
-        }
-
-        function verDetalhesDebito(clienteId) {
-            const cliente = clientes.find(c => c.id === clienteId);
-            const vendasPendentes = vendas.filter(v => v.clienteId === clienteId && v.status === 'pendente');
-            
-            document.getElementById('modalClienteNome').textContent = `Débitos - ${cliente.nome}`;
-            
-            let html = '<div class="transaction-list">';
-            let total = 0;
-            
-            vendasPendentes.forEach(venda => {
-                total += venda.total;
-                html += `
-                    <div class="card">
-                        <p><strong>Data:</strong> ${formatarData(new Date(venda.data))}</p>
-                        <p><strong>Vencimento:</strong> ${formatarData(new Date(venda.dataPagamento))}</p>
-                        <p><strong>Total:</strong> R$ ${venda.total.toFixed(2).replace('.', ',')}</p>
-                        ${venda.observacoes ? `<p><strong>Obs:</strong> ${venda.observacoes}</p>` : ''}
-                        <h4>Itens:</h4>
-                        <ul>
-                `;
-                
-                venda.itens.forEach(item => {
-                    html += `<li>${item.descricao || 'Item'} - R$ ${item.valor.toFixed(2).replace('.', ',')}</li>`;
-                });
-                
-                html += `
-                        </ul>
-                        <button class="btn-success" onclick="pagarVenda('${venda.id}')" style="margin-top: 10px;">
-                            Pagar esta venda
-                        </button>
-                    </div>
-                `;
-            });
-            
-            html += '</div>';
-            html += `<div class="summary-box" style="margin-top: 20px;">
-                        <h2>Total Geral: R$ ${total.toFixed(2).replace('.', ',')}</h2>
-                        <button onclick="registrarPagamento('${clienteId}', ${total})" style="margin-top: 10px;">
-                            Pagar Tudo
-                        </button>
-                     </div>`;
-            
-            document.getElementById('modalClienteConteudo').innerHTML = html;
-            document.getElementById('modalCliente').style.display = 'block';
-        }
-
-        function pagarVenda(vendaId) {
-            if (confirm('Confirmar pagamento desta venda?')) {
-                const venda = vendas.find(v => v.id === vendaId);
-                venda.status = 'pago';
-                venda.dataPagamentoReal = new Date().toISOString();
-                
-                pagamentos.push({
-                    id: Date.now().toString(),
-                    vendaId: vendaId,
-                    clienteId: venda.clienteId,
-                    valor: venda.total,
-                    data: new Date().toISOString()
-                });
-                
-                salvarDados();
-                fecharModal();
-                atualizarDebitos();
-                atualizarRelatorios();
-                
-                // Mostrar mensagem de sucesso
-                const successMsg = document.createElement('div');
-                successMsg.className = 'success-message';
-                successMsg.textContent = 'Pagamento registrado com sucesso!';
-                document.querySelector('.content').insertBefore(successMsg, document.querySelector('.content').firstChild);
-                
-                setTimeout(() => successMsg.remove(), 3000);
-            }
-        }
-
-        function registrarPagamento(clienteId, valor) {
-            if (confirm(`Confirmar pagamento de R$ ${valor.toFixed(2).replace('.', ',')}?`)) {
-                const vendasCliente = vendas.filter(v => v.clienteId === clienteId && v.status === 'pendente');
-                
-                vendasCliente.forEach(venda => {
-                    venda.status = 'pago';
-                    venda.dataPagamentoReal = new Date().toISOString();
-                    
-                    pagamentos.push({
-                        id: Date.now().toString() + Math.random(),
-                        vendaId: venda.id,
-                        clienteId: clienteId,
-                        valor: venda.total,
-                        data: new Date().toISOString()
-                    });
-                });
-                
-                salvarDados();
-                fecharModal();
-                atualizarDebitos();
-                atualizarRelatorios();
-                atualizarListaClientes();
-                
-                // Mostrar mensagem de sucesso
-                const successMsg = document.createElement('div');
-                successMsg.className = 'success-message';
-                successMsg.textContent = 'Pagamento total registrado com sucesso!';
-                document.querySelector('.content').insertBefore(successMsg, document.querySelector('.content').firstChild);
-                
-                setTimeout(() => successMsg.remove(), 3000);
-            }
-        }
-
-        // Funções de Relatório
-        function atualizarRelatorios() {
-            const hoje = new Date();
-            hoje.setHours(0, 0, 0, 0);
-            
-            const mesAtual = new Date();
-            mesAtual.setDate(1);
-            mesAtual.setHours(0, 0, 0, 0);
-            
-            // Vendas de hoje
-            const vendasHoje = vendas.filter(v => {
-                const dataVenda = new Date(v.data);
-                dataVenda.setHours(0, 0, 0, 0);
-                return dataVenda.getTime() === hoje.getTime();
-            });
-            
-            // Vendas do mês
-            const vendasMes = vendas.filter(v => {
-                const dataVenda = new Date(v.data);
-                return dataVenda >= mesAtual;
-            });
-            
-            // Pagamentos de hoje
-            const pagamentosHoje = pagamentos.filter(p => {
-                const dataPag = new Date(p.data);
-                dataPag.setHours(0, 0, 0, 0);
-                return dataPag.getTime() === hoje.getTime();
-            });
-            
-            const totalVendasHoje = vendasHoje.reduce((total, v) => total + v.total, 0);
-            const totalVendasMes = vendasMes.reduce((total, v) => total + v.total, 0);
-            const totalRecebidoHoje = pagamentosHoje.reduce((total, p) => total + p.valor, 0);
-            
-            document.getElementById('vendasHoje').textContent = totalVendasHoje.toFixed(2).replace('.', ',');
-            document.getElementById('vendasMes').textContent = totalVendasMes.toFixed(2).replace('.', ',');
-            document.getElementById('recebidoHoje').textContent = totalRecebidoHoje.toFixed(2).replace('.', ',');
-            
-            // Histórico de transações
-            const todasTransacoes = [
-                ...vendas.map(v => ({...v, tipo: 'venda'})),
-                ...pagamentos.map(p => ({...p, tipo: 'pagamento'}))
-            ].sort((a, b) => new Date(b.data) - new Date(a.data)).slice(0, 20);
-            
-            const container = document.getElementById('historicoTransacoes');
-            container.innerHTML = '';
-            
-            if (todasTransacoes.length === 0) {
-                container.innerHTML = '<div class="empty-state"><p>Nenhuma transação registrada.</p></div>';
-            } else {
-                todasTransacoes.forEach(trans => {
-                    const div = document.createElement('div');
-                    div.className = 'transaction-item';
-                    
-                    if (trans.tipo === 'venda') {
-                        const cliente = clientes.find(c => c.id === trans.clienteId);
-                        div.innerHTML = `
-                            <p><strong>📝 Venda</strong> - ${formatarDataHora(new Date(trans.data))}</p>
-                            <p>Cliente: ${cliente ? cliente.nome : 'Desconhecido'}</p>
-                            <p>Valor: R$ ${trans.total.toFixed(2).replace('.', ',')}</p>
-                        `;
-                    } else {
-                        const cliente = clientes.find(c => c.id === trans.clienteId);
-                        div.innerHTML = `
-                            <p><strong>💰 Pagamento</strong> - ${formatarDataHora(new Date(trans.data))}</p>
-                            <p>Cliente: ${cliente ? cliente.nome : 'Desconhecido'}</p>
-                            <p>Valor: R$ ${trans.valor.toFixed(2).replace('.', ',')}</p>
-                        `;
-                    }
-                    
-                    container.appendChild(div);
-                });
-            }
-        }
-
-        // Funções auxiliares
-        function formatarData(data) {
-            return data.toLocaleDateString('pt-BR');
-        }
-
-        function formatarDataHora(data) {
-            return data.toLocaleString('pt-BR');
-        }
-
-        function fecharModal() {
-            document.getElementById('modalCliente').style.display = 'none';
-        }
-
-        // Fechar modal ao clicar fora
-        window.onclick = function(event) {
-            const modal = document.getElementById('modalCliente');
-            if (event.target === modal) {
-                fecharModal();
-            }
-        }
-
-        // Formatação automática do telefone
-        document.getElementById('telefoneCliente').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length > 11) value = value.slice(0, 11);
-            
-            if (value.length > 6) {
-                value = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`;
-            } else if (value.length > 2) {
-                value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
-            } else if (value.length > 0) {
-                value = `(${value}`;
-            }
-            
-            e.target.value = value;
-        });
-
-        // Sistema de Autocomplete
-        function setupAutocomplete() {
-            const obsInput = document.getElementById('obsCompra');
-            const suggestions = document.getElementById('autocompleteSuggestions');
-            let currentFocus = -1;
-            
-            obsInput.addEventListener('input', function() {
-                const value = this.value.toLowerCase();
-                const lastComma = value.lastIndexOf(',');
-                const currentTerm = value.substring(lastComma + 1).trim();
-                
-                if (currentTerm.length < 2) {
-                    suggestions.classList.remove('active');
-                    return;
-                }
-                
-                const matches = produtos.filter(p => 
-                    p.nome.toLowerCase().includes(currentTerm) &&
-                    !selectedProducts.includes(p.nome)
-                ).slice(0, 10);
-                
-                suggestions.innerHTML = '';
-                currentFocus = -1;
-                
-                // Se não houver correspondências exatas, mostrar opção de adicionar
-                if (currentTerm.length >= 2) {
-                    // Verificar se já existe um produto com esse nome exato
-                    const existeExato = produtos.some(p => 
-                        p.nome.toLowerCase() === currentTerm.toLowerCase()
-                    );
-                    
-                    if (!existeExato && currentTerm.length > 0) {
-                        const addDiv = document.createElement('div');
-                        addDiv.className = 'add-new-product';
-                        addDiv.innerHTML = `
-                            <strong>+ Adicionar "${currentTerm}"</strong> como novo produto
-                        `;
-                        
-                        addDiv.addEventListener('click', function() {
-                            adicionarNovoProduto(currentTerm);
-                        });
-                        
-                        suggestions.appendChild(addDiv);
-                    }
-                }
-                
-                matches.forEach((produto, index) => {
-                    const div = document.createElement('div');
-                    div.className = 'suggestion-item';
-                    div.innerHTML = `
-                        <strong>${produto.nome}</strong>
-                        <span class="suggestion-category">${produto.categoria}</span>
-                    `;
-                    
-                    div.addEventListener('click', function() {
-                        selectProduct(produto.nome);
-                    });
-                    
-                    suggestions.appendChild(div);
-                });
-                
-                if (suggestions.innerHTML !== '') {
-                    suggestions.classList.add('active');
-                } else {
-                    suggestions.classList.remove('active');
-                }
-            });
-            
-            obsInput.addEventListener('keydown', function(e) {
-                const items = suggestions.querySelectorAll('.suggestion-item, .add-new-product');
-                
-                if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    currentFocus++;
-                    addActive(items);
-                } else if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    currentFocus--;
-                    addActive(items);
-                } else if (e.key === 'Enter') {
-                    e.preventDefault();
-                    if (currentFocus > -1 && items[currentFocus]) {
-                        items[currentFocus].click();
-                    } else if (e.key === 'Enter' && this.value.trim()) {
-                        // Se pressionar Enter sem selecionar nada, adiciona o texto como item
-                        const value = this.value;
-                        const lastComma = value.lastIndexOf(',');
-                        const currentTerm = value.substring(lastComma + 1).trim();
-                        
-                        if (currentTerm.length > 0) {
-                            selectProduct(currentTerm);
-                        }
-                    }
-                }
-            });
-            
-            function addActive(items) {
-                if (!items) return false;
-                removeActive(items);
-                if (currentFocus >= items.length) currentFocus = 0;
-                if (currentFocus < 0) currentFocus = items.length - 1;
-                items[currentFocus].classList.add('selected');
-            }
-            
-            function removeActive(items) {
-                for (let i = 0; i < items.length; i++) {
-                    items[i].classList.remove('selected');
-                }
-            }
-            
-            document.addEventListener('click', function(e) {
-                if (!obsInput.contains(e.target) && !suggestions.contains(e.target)) {
-                    suggestions.classList.remove('active');
-                }
-            });
-        }
-        
-        function selectProduct(productName) {
-            selectedProducts.push(productName);
-            updateSelectedItems();
-            document.getElementById('obsCompra').value = '';
-            document.getElementById('autocompleteSuggestions').classList.remove('active');
-        }
-        
-        function removeSelectedProduct(productName) {
-            selectedProducts = selectedProducts.filter(p => p !== productName);
-            updateSelectedItems();
-        }
-        
-        function updateSelectedItems() {
-            const container = document.getElementById('selectedItems');
-            container.innerHTML = '';
-            
-            selectedProducts.forEach(product => {
-                const div = document.createElement('div');
-                div.className = 'selected-item';
-                div.innerHTML = `
-                    ${product}
-                    <button onclick="removeSelectedProduct('${product}')">×</button>
-                `;
-                container.appendChild(div);
-            });
-        }
-        
-        function adicionarNovoProduto(nome) {
-            // Capitalizar primeira letra
-            const nomeFormatado = nome.charAt(0).toUpperCase() + nome.slice(1).toLowerCase();
-            
-            // Adicionar à lista de produtos
-            produtos.push({
-                nome: nomeFormatado,
-                categoria: 'Outros'
-            });
-            
-            // Salvar no localStorage
-            salvarDados();
-            
-            // Selecionar o produto
-            selectProduct(nomeFormatado);
-        }
-    </script>
-
-  <script>
-    const users = {
-        "hudson": "c056e417197097de3f4cc88681eed4ba315911867b10e3124af01da334afffaf",
-        "brenno": "d24ec2a7ab452e93d819f2fda42835428d7ddc3485a1aeece8589935ff87a8ae"
-    };
-
-    async function login() {
-        const username = document.getElementById('username').value.trim().toLowerCase();
-        const password = document.getElementById('password').value;
-
-        if (!users[username]) {
-            document.getElementById('loginError').style.display = 'block';
-            return;
-        }
-
-        const encoder = new TextEncoder();
-        const data = encoder.encode(password);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        
-        if (users[username] === hashHex) {
-            document.getElementById('loginContainer').style.display = 'none';
-            document.getElementById('logoutButtonContainer').style.display = 'block';
-            document.querySelector('.container').style.filter = 'none';
-        } else {
-            document.getElementById('loginError').style.display = 'block';
-        }
-    }
-
-    function logout() {
-        document.getElementById('loginContainer').style.display = 'flex';
-        document.getElementById('logoutButtonContainer').style.display = 'none';
-        document.querySelector('.container').style.filter = 'blur(4px)';
-        document.getElementById('username').value = '';
-        document.getElementById('password').value = '';
-        document.getElementById('loginError').style.display = 'none';
-    }
-
-    function togglePasswordVisibility() {
-        const pwInput = document.getElementById('password');
-        pwInput.type = pwInput.type === "password" ? "text" : "password";
-    }
-
-    window.addEventListener('load', () => {
-        document.querySelector('.container').style.filter = 'blur(4px)';
-    });
-  </script>
-
-
-
+    <script type="module" src="/main.js"></script> 
 </body>
 </html>
