@@ -50,6 +50,7 @@ let pagamentos = [];
 let produtos = [];
 let users = [];
 let selectedClient = null;
+let editingProduct = null;
 
 // Estado do usuário logado
 let currentUser = null; // Objeto de usuário do Firebase Auth
@@ -194,12 +195,18 @@ async function showMainApp() {
 }
 
 // Listeners em tempo real para Firestore
-function setupFirestoreListeners() {
+function setupFirestoreListeners() { // Mantenha a função em seu local original
     onSnapshot(clientesCol, (snapshot) => {
         clientes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         atualizarListaClientes();
         atualizarSelectClientes();
         atualizarDebitos();
+    });
+
+    // Mantenha este onSnapshot separado para produtos
+    onSnapshot(produtosCol, (snapshot) => {
+        produtos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        atualizarListaProdutos(); // Chamar para atualizar a lista de produtos (correto aqui)
     });
 
     onSnapshot(vendasCol, (snapshot) => {
@@ -214,18 +221,13 @@ function setupFirestoreListeners() {
         atualizarDebitos(); // Atualiza débitos após pagamentos também
     });
 
-    onSnapshot(produtosCol, (snapshot) => {
-        produtos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        // Não precisa chamar setupAutocomplete aqui, pois já é chamado na inicialização
-    });
-
     onSnapshot(usersCol, (snapshot) => {
         users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         if (currentCustomUser && currentCustomUser.role === 'admin') {
             atualizarListaUsuarios();
         }
     });
-}
+} 
 
 // Funções de Persistência (agora usando Firebase Firestore)
 async function addDocToFirestore(collectionRef, data) {
@@ -735,6 +737,135 @@ function calcularDebitoCliente(clienteId) {
         .reduce((total, venda) => total + venda.total, 0);
 }
 
+
+// No main.js, adicione estas funções (ex: após as funções de cliente)
+
+function mostrarFormProduto(produtoId = null) {
+    document.getElementById('formProduto').style.display = 'block';
+    document.getElementById('nomeProduto').value = '';
+    document.getElementById('precoProduto').value = '';
+    document.getElementById('categoriaProduto').value = '';
+    editingProduct = null;
+
+    if (produtoId) {
+        const produto = produtos.find(p => p.id === produtoId);
+        if (produto) {
+            document.getElementById('nomeProduto').value = produto.nome;
+            document.getElementById('precoProduto').value = produto.preco || ''; // Preço pode ser undefined
+            document.getElementById('categoriaProduto').value = produto.categoria || '';
+            editingProduct = produto;
+            // Para edição, o nome do produto pode não ser alterável se for a chave primária,
+            // mas aqui, como Firestore gera ID, o nome pode ser alterado.
+            // Se o nome for o ID, talvez o campo nome deva ser readOnly durante a edição.
+        }
+    }
+}
+
+function cancelarFormProduto() {
+    document.getElementById('formProduto').style.display = 'none';
+    document.getElementById('nomeProduto').value = '';
+    document.getElementById('precoProduto').value = '';
+    document.getElementById('categoriaProduto').value = '';
+    editingProduct = null;
+}
+
+async function salvarProduto() {
+    const nome = document.getElementById('nomeProduto').value.trim();
+    const preco = parseFloat(document.getElementById('precoProduto').value);
+    const categoria = document.getElementById('categoriaProduto').value.trim();
+
+    if (!nome || isNaN(preco) || preco < 0) {
+        alert('Por favor, preencha o nome do produto e um preço válido!');
+        return;
+    }
+
+    // Se está editando, verifica se o nome foi alterado para evitar duplicidade
+    if (editingProduct && editingProduct.nome !== nome) {
+        const existingProduct = produtos.find(p => p.nome.toLowerCase() === nome.toLowerCase());
+        if (existingProduct) {
+            alert('Já existe um produto com este nome. Por favor, escolha outro nome.');
+            return;
+        }
+    } else if (!editingProduct) { // Se é um novo produto
+        const existingProduct = produtos.find(p => p.nome.toLowerCase() === nome.toLowerCase());
+        if (existingProduct) {
+            alert('Já existe um produto com este nome. Use a função de alterar.');
+            return;
+        }
+    }
+
+    const produtoData = {
+        nome: nome,
+        preco: preco,
+        categoria: categoria || 'Geral', // Categoria padrão
+        ultimaAtualizacao: new Date().toISOString()
+    };
+
+    try {
+        if (editingProduct) {
+            await updateDocInFirestore(produtosCol, editingProduct.id, produtoData);
+            alert('Produto atualizado com sucesso!');
+        } else {
+            await addDocToFirestore(produtosCol, produtoData);
+            alert('Produto cadastrado com sucesso!');
+        }
+        cancelarFormProduto();
+        // A lista será atualizada pelo listener do Firestore
+    } catch (error) {
+        console.error('Erro ao salvar produto:', error);
+        alert('Erro ao salvar produto. Por favor, tente novamente.');
+    }
+}
+
+async function removerProduto(produtoId, nomeProduto) {
+    if (confirm(`Tem certeza que deseja remover o produto "${nomeProduto}"?`)) {
+        try {
+            await deleteDocFromFirestore(produtosCol, produtoId);
+            alert('Produto removido com sucesso!');
+            // A lista será atualizada pelo listener do Firestore
+        } catch (error) {
+            console.error('Erro ao remover produto:', error);
+            alert('Erro ao remover produto. Por favor, tente novamente.');
+        }
+    }
+}
+
+function atualizarListaProdutos() {
+    const container = document.getElementById('listaProdutos');
+    container.innerHTML = '';
+
+    if (produtos.length === 0) {
+        container.innerHTML = '<div class="empty-state"><p>Nenhum produto cadastrado ainda.</p></div>';
+        return;
+    }
+
+    produtos.sort((a, b) => a.nome.localeCompare(b.nome)).forEach(produto => {
+        const produtoDiv = document.createElement('div');
+        produtoDiv.className = 'product-item card'; // Mantém 'card' para estilo base, adiciona 'product-item'
+        produtoDiv.innerHTML = `
+            <div class="product-info">
+                <h3>${produto.nome}</h3> <p>💰 R$ ${(produto.preco || 0).toFixed(2).replace('.', ',')}</p>
+                <p>📦 Categoria: ${produto.categoria || 'Não especificado'}</p>
+            </div>
+            <div style="text-align: right;"> <button class="btn-warning" onclick="mostrarFormProduto('${produto.id}')">Alterar</button>
+                <button class="btn-danger" onclick="removerProduto('${produto.id}', '${produto.nome}')">Excluir</button>
+            </div>
+        `;
+        container.appendChild(produtoDiv);
+    });
+}
+
+function filtrarProdutos() {
+    const busca = document.getElementById('buscarProduto').value.toLowerCase();
+    const cards = document.querySelectorAll('#listaProdutos .client-item'); // Mude para .product-item se criar a classe
+    
+    cards.forEach(card => {
+        const nome = card.querySelector('h3').textContent.toLowerCase();
+        card.style.display = nome.includes(busca) ? 'flex' : 'none'; // Usar flex porque a classe client-item é flex
+    });
+}
+
+
 // Funções de Débitos
 function atualizarDebitos() {
     const container = document.getElementById('listaDebitos');
@@ -1137,25 +1268,25 @@ function setupAutocomplete() {
         currentFocus = -1;
         
         // Se não houver correspondências exatas, mostrar opção de adicionar
-        if (currentTerm.length >= 2) {
-            const existeExato = produtos.some(p => 
-                p.nome.toLowerCase() === currentTerm.toLowerCase()
-            );
+        // if (currentTerm.length >= 2) {
+        //     const existeExato = produtos.some(p => 
+        //         p.nome.toLowerCase() === currentTerm.toLowerCase()
+        //     );
             
-            if (!existeExato && currentTerm.length > 0) {
-                const addDiv = document.createElement('div');
-                addDiv.className = 'add-new-product';
-                addDiv.innerHTML = `
-                    <strong>+ Adicionar "${currentTerm}"</strong> como novo produto
-                `;
+        //     if (!existeExato && currentTerm.length > 0) {
+        //         const addDiv = document.createElement('div');
+        //         addDiv.className = 'add-new-product';
+        //         addDiv.innerHTML = `
+        //             <strong>+ Adicionar "${currentTerm}"</strong> como novo produto
+        //         `;
                 
-                addDiv.addEventListener('click', function() {
-                    adicionarNovoProduto(currentTerm);
-                });
+        //         addDiv.addEventListener('click', function() {
+        //             adicionarNovoProduto(currentTerm);
+        //         });
                 
-                suggestions.appendChild(addDiv);
-            }
-        }
+        //         suggestions.appendChild(addDiv);
+        //     }
+        // }
         
         matches.forEach((produto, index) => {
             const div = document.createElement('div');
@@ -1612,4 +1743,10 @@ window.removerUsuario = removerUsuario;
 window.alterarSenha = alterarSenha;
 window.adicionarNovoProduto = adicionarNovoProduto;
 window.atualizarDescricaoItem = atualizarDescricaoItem;
-window.setupClienteAutocomplete = setupClienteAutocomplete; 
+window.setupClienteAutocomplete = setupClienteAutocomplete;
+window.mostrarFormProduto = mostrarFormProduto;
+window.cancelarFormProduto = cancelarFormProduto;
+window.salvarProduto = salvarProduto;
+window.removerProduto = removerProduto;
+window.atualizarListaProdutos = atualizarListaProdutos; // Pode não ser necessário expor se só é chamada internamente
+window.filtrarProdutos = filtrarProdutos;

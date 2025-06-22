@@ -683,8 +683,7 @@
             <button class="tab" onclick="showSection('clientes')">Clientes</button>
             <button class="tab" onclick="showSection('consultar')">Consultar Débitos</button>
             <button class="tab" onclick="showSection('relatorios')">Relatórios</button>
-            <button id="tabConfig" class="tab" style="display: none;" onclick="showSection('configuracoes')">Configurações</button>
-
+            <button class="tab" onclick="showSection('produtos')">Produtos</button> <button id="tabConfig" class="tab" style="display: none;" onclick="showSection('configuracoes')">Configurações</button>
         </div>
 
         <div class="content">
@@ -840,6 +839,39 @@
                     <h3>Histórico de Transações</h3>
                     <div class="transaction-list" id="historicoTransacoes"></div>
                 </div>
+            </div>
+
+            <div id="produtos" class="section">
+                <h2>Gerenciar Produtos</h2>
+
+                <button onclick="mostrarFormProduto()" style="margin-bottom: 20px;">+ Novo Produto</button>
+
+                <div id="formProduto" style="display: none;" class="card">
+                    <h3>Cadastrar/Alterar Produto</h3>
+                    <div class="form-group">
+                        <label>Nome do Produto:</label>
+                        <input type="text" id="nomeProduto" placeholder="Nome do produto" autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label>Preço:</label>
+                        <input type="number" id="precoProduto" step="0.01" min="0" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Categoria:</label>
+                        <input type="text" id="categoriaProduto" placeholder="Ex: Alimentos, Bebidas, Limpeza">
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn-secondary" onclick="cancelarFormProduto()">Cancelar</button>
+                        <button onclick="salvarProduto()">Salvar Produto</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <input type="text" id="buscarProduto" placeholder="Buscar produto..." onkeyup="filtrarProdutos()">
+                </div>
+
+                <div class="product-list" id="listaProdutos">
+                    </div>
             </div>
 
             <div id="configuracoes" class="section">
