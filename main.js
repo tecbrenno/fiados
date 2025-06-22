@@ -21,14 +21,14 @@ const firebaseConfig = {
 
 
 // --- ADICIONE OS CONSOLE.LOG() AQUI ---
-console.log("Variáveis do Ambiente Firebase:");
-console.log("VITE_FIREBASE_API_KEY:", firebaseConfig.apiKey);
-console.log("VITE_FIREBASE_AUTH_DOMAIN:", firebaseConfig.authDomain);
-console.log("VITE_FIREBASE_PROJECT_ID:", firebaseConfig.projectId);
-console.log("VITE_FIREBASE_STORAGE_BUCKET:", firebaseConfig.storageBucket);
-console.log("VITE_FIREBASE_MESSAGING_SENDER_ID:", firebaseConfig.messagingSenderId);
-console.log("VITE_FIREBASE_APP_ID:", firebaseConfig.appId);
-console.log("VITE_FIREBASE_MEASUREMENT_ID:", firebaseConfig.measurementId); // Pode ser undefined se não estiver no .env
+// console.log("Variáveis do Ambiente Firebase:");
+// console.log("VITE_FIREBASE_API_KEY:", firebaseConfig.apiKey);
+// console.log("VITE_FIREBASE_AUTH_DOMAIN:", firebaseConfig.authDomain);
+// console.log("VITE_FIREBASE_PROJECT_ID:", firebaseConfig.projectId);
+// console.log("VITE_FIREBASE_STORAGE_BUCKET:", firebaseConfig.storageBucket);
+// console.log("VITE_FIREBASE_MESSAGING_SENDER_ID:", firebaseConfig.messagingSenderId);
+// console.log("VITE_FIREBASE_APP_ID:", firebaseConfig.appId);
+// console.log("VITE_FIREBASE_MEASUREMENT_ID:", firebaseConfig.measurementId); // Pode ser undefined se não estiver no .env
 
 
 // Inicializar Firebase
@@ -858,8 +858,8 @@ function verDetalhesDebito(clienteId) {
     
     vendasPendentes.forEach(venda => {
          // --- NOVO CONSOLE.LOG ADICIONADO AQUI ---
-        console.log("Processando venda no modal:", venda);
-        console.log("Tipo de venda.itens:", typeof venda.itens, "É array?", Array.isArray(venda.itens));
+        // console.log("Processando venda no modal:", venda);
+        // console.log("Tipo de venda.itens:", typeof venda.itens, "É array?", Array.isArray(venda.itens));
         // --- FIM DO NOVO CONSOLE.LOG ---
 
         total += venda.total;
@@ -1009,13 +1009,13 @@ function atualizarRelatorios() {
     });
 
     // --- NOVOS CONSOLE.LOGS ADICIONADOS AQUI ---
-    console.log("---------- DEBUG ATUALIZAR RELATÓRIOS ----------");
-    console.log("Array vendas:", vendas);
-    console.log("Array pagamentos:", pagamentos);
-    console.log("Vendas Hoje:", vendasHoje);
-    console.log("Vendas Mês:", vendasMes);
-    console.log("Pagamentos Hoje:", pagamentosHoje);
-    console.log("--------------------------------------------------");
+    // console.log("---------- DEBUG ATUALIZAR RELATÓRIOS ----------");
+    // console.log("Array vendas:", vendas);
+    // console.log("Array pagamentos:", pagamentos);
+    // console.log("Vendas Hoje:", vendasHoje);
+    // console.log("Vendas Mês:", vendasMes);
+    // console.log("Pagamentos Hoje:", pagamentosHoje);
+    // console.log("--------------------------------------------------");
     // --- FIM DOS NOVOS CONSOLE.LOGS ---
     
     const totalVendasHoje = vendasHoje.reduce((total, v) => total + (v.total || 0), 0);
@@ -1023,10 +1023,10 @@ function atualizarRelatorios() {
     const totalRecebidoHoje = pagamentosHoje.reduce((total, p) => total + (p.valor || 0), 0);
 
     //  --- NOVOS CONSOLE.LOGS ADICIONADOS AQUI ---
-    console.log("Total Vendas Hoje:", totalVendasHoje);
-    console.log("Total Vendas Mês:", totalVendasMes);
-    console.log("Total Recebido Hoje:", totalRecebidoHoje);
-    console.log("--------------------------------------------------");
+    // console.log("Total Vendas Hoje:", totalVendasHoje);
+    // console.log("Total Vendas Mês:", totalVendasMes);
+    // console.log("Total Recebido Hoje:", totalRecebidoHoje);
+    // console.log("--------------------------------------------------");
     // --- FIM DOS NOVOS CONSOLE.LOGS ---
     
     document.getElementById('vendasHoje').textContent = totalVendasHoje.toFixed(2).replace('.', ','); // Linha 1054
