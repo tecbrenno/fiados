@@ -4,26 +4,20 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - master # ou main, dependendo da sua branch principal
+      - master # ou main
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      # ... (Passos Checkout, Install Node.js, Install dependencies) ...
 
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18' # Use uma versão LTS compatível
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build project # Modificado: Adiciona variáveis de ambiente para o build
-        run: npm run build
-        env: # Adicione esta seção 'env'
+      - name: Debug Passed Environment Variables # NOVO PASSO TEMPORÁRIO PARA DEBUG
+        run: |
+          echo "VITE_FIREBASE_API_KEY is: ${{ env.VITE_FIREBASE_API_KEY }}"
+          echo "VITE_FIREBASE_PROJECT_ID is: ${{ env.VITE_FIREBASE_PROJECT_ID }}"
+          # Adicione mais variáveis aqui para verificar todas
+        env: # Este 'env' define variáveis de ambiente para este passo específico
           VITE_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
           VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
           VITE_FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
@@ -32,10 +26,13 @@ jobs:
           VITE_FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
           VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.FIREBASE_MEASUREMENT_ID }} # Opcional
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
-          publish_branch: gh-pages
-          force_orphan: true
+      - name: Build project # Seu passo de build existente
+        run: npm run build
+        env: # ESTE 'env' também precisa estar aqui para o passo de build
+          VITE_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
+          VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
+          VITE_FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+          VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.FIREBASE_MEASUREMENT_ID }}
